@@ -3,8 +3,9 @@ const t = THREE;
 // camera
 const aspectRatio = window.innerWidth / window.innerHeight;
 const camera = new t.PerspectiveCamera(35, aspectRatio, 0.1, 3000);
-camera.position.set(-20, 6, -45);
-camera.rotation.x = -0.5;
+// camera.position.set(-20, 6, -45);
+camera.position.set(-2, 5, 50);
+camera.rotation.set(0, 0, 0);
 
 // scene 
 const scene = new t.Scene()
@@ -37,12 +38,13 @@ tree.add(trunk)
 // leafs
 const leafsGeo = new t.Geometry();
 const leafGeo = new t.ConeGeometry(1.5, 3, 4, 2, false);
+leafGeo.translate(0, 4, 0);
 const leafMtl = new t.MeshLambertMaterial({
     color: 0x228B22
 });
 const leafCount = 3;
 for (var i = 0; i < leafCount; i++) {
-    leafGeo.translate(0, 5 + (i/100), 0);
+    leafGeo.translate(0, 1.2, 0);
     leafsGeo.merge(leafGeo);
 }
 var leaf = new t.Mesh(leafsGeo, leafMtl);
@@ -52,43 +54,48 @@ tree.add(leaf);
 scene.add(tree)
 
 // sun 
-const sun = new t.Group();
+const sunGroup = new t.Group();
+const sunGeos = new t.Geometry();
+
+// sun face
+const sunFaceGeo = new t.SphereGeometry(1.6, 20);
+// scale not working for geomentry
+sunFaceGeo.scale.set = (0, 0, 0.04);
+sunGeos.merge(sunFaceGeo);
+
+
+const rayGeo = new t.CylinderGeometry(0.1, 0.1, 6, 8, 2 );
+const rayCount = 6;
+for (var ray = 0; ray < rayCount; ray++) {
+    rayGeo.translate(0, 0, 2);
+    // rotation not working
+    // rayGeo.rotation(0, 0, 10);
+    sunGeos.merge( rayGeo)
+}
+sunGeos.merge(rayGeo);
 
 // sun mtl
 const sunMtl = new t.MeshLambertMaterial({
     color: 0xffff00
 });
 
-// sun face
-const sunFaceGeo = new t.SphereGeometry(2, 20);
-const sunFace = new t.Mesh(sunFaceGeo, sunMtl);
-sunFace.scale.z = 0.02;
-sun.add(sunFace)
-
-// sun rays
-// const noOfRays = 6;
-// for (let i = 0; i < noOfRays; i++) {
-//     let rayGeo = new t.CylinderGeometry(2, 2, 3, 2);
-//     let ray = t.Mesh(rayGeo, sunMtl);
-//     ray.position.x = 4;
-//     ray.position.x = 4;
-//     ray.rotation.x = 4;
-//     sun.add(ray);
-// }
+// sun mesh
+const sunMesh = new t.Mesh(sunGeos, sunMtl)
+sunGroup.add(sunMesh);
 
 // directional light as sun
 const sunLight = new t.DirectionalLight(0xffffff, 0.5);
 sunLight.target = tree;
 sunLight.castShadow = true;
-sun.add(sunLight);
-
-sun.position.y = 8;
-sun.position.x = 5;
-scene.add(sun);
+sunGroup.add(sunLight);
+    
+sunGroup.position.y = 8;
+sunGroup.position.x = 5;
+scene.add(sunGroup);
 
 // env light
-const env = new t.AmbientLight(0xffffff, 0.25);
-scene.add(env);
+const envLight = new t.AmbientLight(0xffffff, 0.25);
+scene.add(envLight);
 
 // renderer
 const renderer = new t.WebGLRenderer();
@@ -98,13 +105,12 @@ renderer.shadowMap = t.PCFShadowMap;
 
 // main render function
 render = () => {
-    // console.log()
     renderer.render(scene, camera)
 }
 
 // orbital controls
 const controls = new THREE.OrbitControls( camera, renderer.domElement );
-controls.addEventListener( 'change', render ); // remove when using animation loop
+controls.addEventListener( 'change', render );
 
 render();
 document.body.appendChild(renderer.domElement);
