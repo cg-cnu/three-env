@@ -3,7 +3,6 @@ const t = THREE;
 // camera
 const aspectRatio = window.innerWidth / window.innerHeight;
 const camera = new t.PerspectiveCamera(35, aspectRatio, 0.1, 3000);
-// camera.position.set(-20, 6, -45);
 camera.position.set(-2, 5, 50);
 camera.rotation.set(0, 0, 0);
 
@@ -72,7 +71,6 @@ for (var ray = 0; ray < rayCount; ray++) {
     // rayGeo.rotation(0, 0, 10);
     sunGeos.merge( rayGeo)
 }
-sunGeos.merge(rayGeo);
 
 // sun mtl
 const sunMtl = new t.MeshLambertMaterial({
