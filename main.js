@@ -19,6 +19,7 @@ ground.rotation.x += 90;
 ground.position.y = 0;
 ground.scale.z = 0.02;
 ground.receiveShadow = true;
+ground.castShadow = false;
 scene.add(ground);
 
 // tree
@@ -32,6 +33,7 @@ const trunkMtl = new t.MeshLambertMaterial({
 const trunk = new t.Mesh(trunkGeo, trunkMtl)
 trunk.position.y = 3;
 trunk.castShadow = true;
+trunk.receiveShadow = false;
 tree.add(trunk)
 
 // leafs
@@ -48,6 +50,7 @@ for (var i = 0; i < leafCount; i++) {
 }
 var leaf = new t.Mesh(leafsGeo, leafMtl);
 leaf.castShadow = true;
+leaf.receiveShadow = false;
 tree.add(leaf);
 
 scene.add(tree)
@@ -58,17 +61,14 @@ const sunGeos = new t.Geometry();
 
 // sun face
 const sunFaceGeo = new t.SphereGeometry(1.6, 20);
-// scale not working for geomentry
-sunFaceGeo.scale.set = (0, 0, 0.04);
+sunFaceGeo.scale(1, 1, 0.25);
 sunGeos.merge(sunFaceGeo);
 
 
-const rayGeo = new t.CylinderGeometry(0.1, 0.1, 6, 8, 2 );
+const rayGeo = new t.CylinderGeometry(0.1, 0.1, 5, 8, 2 );
 const rayCount = 6;
 for (var ray = 0; ray < rayCount; ray++) {
-    rayGeo.translate(0, 0, 2);
-    // rotation not working
-    // rayGeo.rotation(0, 0, 10);
+    rayGeo.rotateZ( Math.PI/rayCount );
     sunGeos.merge( rayGeo)
 }
 
@@ -82,9 +82,10 @@ const sunMesh = new t.Mesh(sunGeos, sunMtl)
 sunGroup.add(sunMesh);
 
 // directional light as sun
-const sunLight = new t.DirectionalLight(0xffffff, 0.5);
+const sunLight = new t.DirectionalLight(0xffffff, 2);
 sunLight.target = tree;
-sunLight.castShadow = true;
+sunLight.castShadows = true;
+// sunLight.receiveShadow = false;
 sunGroup.add(sunLight);
     
 sunGroup.position.y = 8;
@@ -92,7 +93,7 @@ sunGroup.position.x = 5;
 scene.add(sunGroup);
 
 // env light
-const envLight = new t.AmbientLight(0xffffff, 0.25);
+const envLight = new t.AmbientLight(0xffffff, 0.5);
 scene.add(envLight);
 
 // renderer
